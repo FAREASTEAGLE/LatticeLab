@@ -1,6 +1,7 @@
 #include "ToolsPanel.h"
 
 #include <cmath>
+#include <string>
 
 #include "App/AppSignals.h"
 #include "GUI/interface/panels/debug/DebugPanel.h"
@@ -40,16 +41,19 @@ void ToolsPanel::draw(float scale, DebugPanel& debug, SettingsPanel& settings, I
     const float x = std::round(baseLeftOffset * scale);
     const float y = std::round(baseTopOffset * scale);
 
-    auto drawActiveButton = [&](const char* icon, bool visible) {
+    auto drawActiveButton = [&](const char* id, const char* icon, bool visible) {
+        ImGui::PushID(id);
+        const std::string label = std::string(icon) + "##" + id;
         if (visible) {
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.06f, 0.53f, 0.98f, 1.00f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.06f, 0.53f, 0.98f, 1.00f));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.06f, 0.53f, 0.98f, 1.00f));
         }
-        const bool clicked = ImGui::Button(icon, ImVec2(buttonSize, buttonSize));
+        const bool clicked = ImGui::Button(label.c_str(), ImVec2(buttonSize, buttonSize));
         if (visible) {
             ImGui::PopStyleColor(3);
         }
+        ImGui::PopID();
         return clicked;
     };
 
@@ -60,7 +64,7 @@ void ToolsPanel::draw(float scale, DebugPanel& debug, SettingsPanel& settings, I
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacingX, 0.0f));
     ImGui::Begin("Tools", nullptr, PANEL_FLAGS);
 
-    if (drawActiveButton(ICON_FA_COG, settings.isVisible())) {
+    if (drawActiveButton("settings", ICON_FA_COG, settings.isVisible())) {
         if (settings.isVisible()) {
             settings.close();
         }
@@ -72,7 +76,7 @@ void ToolsPanel::draw(float scale, DebugPanel& debug, SettingsPanel& settings, I
     }
 
     ImGui::SameLine();
-    if (drawActiveButton(ICON_FA_FLASK, ioPanel.isVisible())) {
+    if (drawActiveButton("io", ICON_FA_FLASK, ioPanel.isVisible())) {
         if (ioPanel.isVisible()) {
             ioPanel.close();
         }
@@ -84,7 +88,7 @@ void ToolsPanel::draw(float scale, DebugPanel& debug, SettingsPanel& settings, I
     }
     ImGui::SameLine();
 
-    if (drawActiveButton(ICON_FA_BUG, debug.isVisible())) {
+    if (drawActiveButton("debug", ICON_FA_BUG, debug.isVisible())) {
         if (debug.isVisible()) {
             debug.close();
         }
@@ -105,10 +109,13 @@ void ToolsPanel::draw(float scale, DebugPanel& debug, SettingsPanel& settings, I
     }
     if (is3D) {
         ImGui::SameLine();
-        if (ImGui::Button(isFree ? ICON_FA_STREET_VIEW : ICON_FA_SYNC_ALT, ImVec2(buttonSize, buttonSize))) {
+        ImGui::PushID("camera_mode");
+        const char* cameraLabel = isFree ? ICON_FA_STREET_VIEW "##camera_mode_free" : ICON_FA_SYNC_ALT "##camera_mode_orbit";
+        if (ImGui::Button(cameraLabel, ImVec2(buttonSize, buttonSize))) {
             isFree = !isFree;
             AppSignals::UI::SetCameraMode.emit(isFree ? Camera::Mode::Free : Camera::Mode::Orbit);
         }
+        ImGui::PopID();
     }
 
     ImGui::End();

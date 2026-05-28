@@ -57,7 +57,7 @@ void SimControlPanel::draw(float scale, Vec2i windowSize, bool& pause, float& si
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, DISABLED_BUTTON_ACTIVE_COLOR);
     }
     ImGui::BeginDisabled(!pause);
-    if (ImGui::Button(ICON_FA_STEP_FORWARD, ImVec2(50 * scale, 50 * scale))) {
+    if (ImGui::Button(ICON_FA_STEP_FORWARD "##step_forward", ImVec2(50 * scale, 50 * scale))) {
         AppSignals::UI::StepPhysics.emit();
     }
     ImGui::EndDisabled();
@@ -71,7 +71,8 @@ void SimControlPanel::draw(float scale, Vec2i windowSize, bool& pause, float& si
     if (playButtonHighlighted) {
         pushActiveColor();
     }
-    if (ImGui::Button(pause ? ICON_FA_PLAY : ICON_FA_PAUSE, ImVec2(50 * scale, 50 * scale))) {
+    const char* playPauseLabel = pause ? ICON_FA_PLAY "##play_pause_resume" : ICON_FA_PAUSE "##play_pause_pause";
+    if (ImGui::Button(playPauseLabel, ImVec2(50 * scale, 50 * scale))) {
         pause = !pause;
     }
     if (playButtonHighlighted) {

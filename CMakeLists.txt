@@ -70,6 +70,7 @@ add_dependencies(latticelab_lib embedded_translate)
 
 target_compile_options(latticelab_lib PRIVATE
     $<$<AND:$<BOOL:${OPTIMIZE_FOR_NATIVE}>,$<NOT:$<CONFIG:Debug>>,$<CXX_COMPILER_ID:GNU,Clang,AppleClang>>:-march=native>
+    $<$<CXX_COMPILER_ID:MSVC>:/utf-8>
 )
 
 target_compile_definitions(latticelab_lib PUBLIC

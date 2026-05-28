@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cmath>
+#include <string>
 
 #define ICON_FA_MOUSE_POINTER "\uf245"
 #define ICON_FA_VECTOR_SQUARE "\uf5cb"
@@ -28,14 +29,15 @@ namespace {
         {SideToolsPanel::Tool::RemoveAtom, ICON_FA_MINUS, "Remove atom"},
     }};
 
-    bool drawToolButton(const char* icon, const char* tooltip, bool selected, float buttonSize, ImFont* textFont) {
+    bool drawToolButton(const char* icon, const char* tooltip, int toolId, bool selected, float buttonSize, ImFont* textFont) {
         if (selected) {
             ImGui::PushStyleColor(ImGuiCol_Button, ACTIVE_COLOR);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ACTIVE_COLOR);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ACTIVE_COLOR);
         }
 
-        const bool pressed = ImGui::Button(icon, ImVec2(buttonSize, buttonSize));
+        const std::string label = std::string(icon) + "##tool_" + std::to_string(toolId);
+        const bool pressed = ImGui::Button(label.c_str(), ImVec2(buttonSize, buttonSize));
 
         if (selected) {
             ImGui::PopStyleColor(3);
@@ -93,9 +95,11 @@ void SideToolsPanel::draw(float scale, Vec2i windowSize, ImFont* iconFont, ImFon
     }
 
     for (const ToolItem& item : TOOL_ITEMS) {
-        if (drawToolButton(item.icon, item.tooltip, selectedTool == item.tool, buttonSize, textFont)) {
+        ImGui::PushID(static_cast<int>(item.tool));
+        if (drawToolButton(item.icon, item.tooltip, static_cast<int>(item.tool), selectedTool == item.tool, buttonSize, textFont)) {
             selectedTool = item.tool;
         }
+        ImGui::PopID();
     }
 
     if (iconFont) {
